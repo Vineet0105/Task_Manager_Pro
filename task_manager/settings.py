@@ -75,17 +75,36 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "Task_Manager",
-        "USER": "postgres",
-        "PASSWORD": "vinu",
-        "HOST": "localhost",
-        "PORT": '5432'
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "taskdb",
+        "USER": "taskuser",
+        "PASSWORD": "taskpass",
+        "HOST": "db",         
+        "PORT": "5432",
     }
 }
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql_psycopg2",
+#         "NAME": "Task_Manager",
+#         "USER": "postgres",
+#         "PASSWORD": "vinu",
+#         "HOST": "localhost",
+#         "PORT": '5432'
+#     }
+# }
 
 
 # Password validation
@@ -129,6 +148,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CELERY_BROKER_URL = "redis://redis:6379/2"
+CELERY_RESULT_BACKEND = "redis://redis:6379/2"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),      
@@ -146,13 +167,20 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 5,   
 }
 
-
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6379/1",
+        "LOCATION": "redis://redis:6379/1", 
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
+}
+
+
+CELERY_BEAT_SCHEDULE = {
+    "check-overdue-tasks-every-minute": {
+        "task": "tasks.tasks.check_overdue_tasks",
+        "schedule": timedelta(seconds=20),
+    },
 }
